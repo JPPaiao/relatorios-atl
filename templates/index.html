@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload de Planilha</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.1.7/css/dataTables.dataTables.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/fixedcolumns/5.0.3/css/fixedColumns.dataTables.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.dataTables.css"
+    />
+
+    <link rel="stylesheet" href="../static/style/index.css" />
+  </head>
+  <body>
+    <div class="container">
+      
+      <div id="datas" class="datas-table">
+        <div class="header">
+          <div class="update">
+            <span>Buscar tabelas</span>
+            <div class="update-buttons">
+              <button type="submit" id="nav" name="nav" class="button-restart" onclick="selectButton(this)">NAV</button>
+              <button type="submit" id="gja" name="gja" class="button-restart" onclick="selectButton(this)">GJA</button>
+              <button type="submit" id="pga" name="pga" class="button-restart" onclick="selectButton(this)">PGA</button>
+            </div>
+            <div>
+              <input type="date" name="month-current" id="month-current">
+              <input type="date" name="month-pass" id="month-pass">
+            </div>
+          </div>
+          <div class="update">
+            <span>Adicionar dados</span>
+            <div class="update-buttons">
+              <button id="update-nav" name="nav" class="button-restart" >NAV</button>
+              <button id="update-gja" name="gja" class="button-restart" >GJA</button>
+              <button id="update-pga" name="pga" class="button-restart" >PGA</button>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <table
+          id="table-container"
+          class="display hover row-border order-column stripe compact"
+          style="width: 100%"
+        >
+          <thead id="table_container_thead">
+          </thead>
+          <tbody></tbody>
+          <tfoot id="table_container_tfoot">
+            <tr id="#search_0">
+              <th>UNIDADE</th>
+              <th>TIPO</th>
+              <th>OWNER</th>
+              <th>ENTRADA</th>
+              <th>CNPJ AGENDADO</th>
+              <th>CNPJ HBL</th>
+              <th>TRANSPORTADORA</th>
+              <th>CNPJ TRANSPORTADORA</th>
+              <th>VALORES</th>
+              <th>OBS</th>
+              <th>DATA. PAG</th>
+              <th>NF</th>
+              <th>ISENTO</th>
+              <th>V. ISENTO</th>
+              <th>OBS SAC</th>
+              <th>SAC</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.7/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/colreorder/2.0.4/js/dataTables.colReorder.js"></script>
+    <script src="https://cdn.datatables.net/colreorder/2.0.4/js/colReorder.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/5.0.3/js/dataTables.fixedColumns.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/5.0.3/js/fixedColumns.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.dataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Planilha</title>
+
+    <style>
+        .progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+        }
+
+        .progress {
+            width: 0;
+            height: 30px;
+            background-color: #4caf50;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Faça o upload de uma planilha</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx" required>
+        <button type="submit" >Enviar</button>
+    </form>
+
+    <h3>Progresso: <span id="progress-percentage">0%</span></h3>
+
+    <script>
+        function updateProgressPercentage() {
+            fetch('/progress')
+                .then(response => response.json())
+                .then(data => {
+                    const progressPercentage = document.getElementById('progress-percentage');
+                    progressPercentage.innerText = Math.floor(data.progress) + '%';
+                    
+                    if (data.progress < 100) {
+                        setTimeout(updateProgressPercentage, 500);
+                    }
+                });
+        }
+
+        document.querySelector('form').addEventListener('submit', function () {
+            setTimeout(updateProgressPercentage, 1000); // Espera um pouco antes de iniciar o progresso
+        });
+    </script>
+</body>
+</html>

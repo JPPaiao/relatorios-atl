@@ -1,0 +1,201 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  gap: 20px;
+  padding: 10px 12px;
+  font-size: 0.88em;
+  background: linear-gradient(#dadada, #acacac);
+}
+
+.datas-table {
+  padding: 8px 12px;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 0.88em;
+  gap: 6px;
+  max-width: 96%;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.datas-table::-webkit-scrollbar {
+  width: 12px;
+}
+
+.datas-table::-webkit-scrollbar-track {
+  background-color: #383838;
+  
+}
+
+.datas-table::-webkit-scrollbar-thumb {
+  background-color: #5f5f5f;
+}
+
+.update {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.update > span {
+  font-size: 1.2rem;
+}
+
+.update-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.header {
+  background-color: #ffffff;
+  font-size: 1.0em;
+  display: flex;
+  gap: 6px;
+  justify-content: space-around; 
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 6px 2px;
+  flex-wrap: wrap;
+}
+
+.button-restart, .upload-button {
+  padding: 2px 8px;
+  background-color: #363636;
+  font-size: 1.2rem;
+  color: #fff;
+  outline: none;
+  margin: auto;
+  cursor: pointer;
+  border: none;
+}
+
+.selected {
+  background-color: rgb(0, 122, 0);
+  color: white;
+}
+
+.form-upload {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-submit {
+  margin: auto;
+  width: 80%;
+  padding: 2px 8px;
+  background-color: #363636;
+  color: #fff;
+  outline: none;
+  cursor: pointer
+}
+
+.input-file {
+  outline: none;
+  cursor: pointer;
+}
+
+
+tfoot input {
+  width: 100%;
+  padding: 3px; 
+}
+
+div.dataTables_wrapper {
+  width: 800px;
+  margin: 0 auto;
+}
+
+
+/* upload + modal */
+.upload-container {
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.drop-zone {
+  border: 2px dashed #ccc;
+  padding: 30px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.drop-zone:hover {
+  background-color: #e0e0e0;
+}
+
+.drop-zone p {
+  margin: 0;
+  font-size: 18px;
+}
+
+.file-upload-input {
+  display: none;
+}
+
+#file-list {
+  margin-top: 20px;
+  list-style-type: none;
+  padding: 0;
+}
+
+#progress-container {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 20px;
+  display: none;
+}
+
+#progress-bar {
+  width: 0;
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s;
+}
+
+/* Estilo para a área de porcentagem */
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.progress-info button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.progress-info button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.percentage {
+  font-size: 16px;
+  font-weight: bold;
+}
