@@ -1,7 +1,13 @@
 from googleapiclient.errors import HttpError
 import pandas as pd
+from dotenv import load_dotenv
+import os
+import ast
 
-COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'ISENTO', 'V. ISENTO',	'OBS SAC',	'SAC']
+load_dotenv()
+
+COLUMNS = ast.literal_eval(os.getenv('COLUMNS')) 
+# COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ISENTO',	'OBS SAC',	'SAC']
 
 def sheet_for_dataframe(sheet):
   try:
@@ -26,7 +32,6 @@ def sheet_for_dataframe(sheet):
 def dataframe_for_sheet(df, collumn=False):
   if not df.empty:
     df['ENTRADA'] = df['ENTRADA'].apply(format_date)
-    df['DATA. PAG'] = df['DATA. PAG'].apply(format_date)
 
     convert = df.values.tolist()
 

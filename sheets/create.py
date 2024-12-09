@@ -31,7 +31,6 @@ def process_data_by_month(df_new_sheet, service, sheet_ids):
       update_sheet(sheet_format, service, sheet_ids, month_name)
   
   if not new.empty:
-    new['ENTRADA'] = pd.to_datetime(new['ENTRADA'], errors='coerce', dayfirst=True) 
     grouped = new.groupby([new['ENTRADA'].dt.year, new['ENTRADA'].dt.month])
 
     for (year, month), group in grouped:

@@ -17,7 +17,7 @@ load_dotenv()
 app = Flask(__name__)
 limiter = Limiter(
   key_func=get_remote_address,
-  app=app, 
+  app=app,
   default_limits=["100 per hour"]
 ) 
 progress = {'progress': 0}
@@ -29,7 +29,6 @@ event = threading.Event()
 MAX_CONTENT_LENGTH = 50 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'xlsx'}
 UPLOAD_FOLDER = os.getenv('UPLOAD')
-
 
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
@@ -101,7 +100,7 @@ def read_sheet(depot):
 
     months_current = first_day.strftime("%d-%m-%Y") 
     month_pass = last_day.strftime("%d-%m-%Y")
-
+ 
   list_dfs = []
   sheets = read_sheets(depot, months_current, month_pass)
 
@@ -110,7 +109,6 @@ def read_sheet(depot):
 
   df_concat = pd.concat(list_dfs)
   df_json = df_concat.to_json(orient='records')
-
   return df_json
 
 

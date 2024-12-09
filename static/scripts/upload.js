@@ -120,7 +120,6 @@ function upload(e) {
 
             const dataProgress = await progressResponse.json()
             const progress = dataProgress.progress
-            console.log(dataProgress)
   
             if (progress >= 100 || dataProgress.status === 'completed') {
 

@@ -19,7 +19,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 
 def process_spreadsheet(file_path, depot, set_progress):
-  df = pd.read_excel(file_path)
+  df = pd.read_excel(file_path) 
 
   df_cobranca = pd.DataFrame({
     "UNIDADE": df["cntr"],
@@ -32,50 +32,39 @@ def process_spreadsheet(file_path, depot, set_progress):
     "CNPJ TRANSPORTADORA": df["carrier_cnpj"],
     "VALORES": df['price_use'],
     "OBS": "",
-    "DATA. PAG": df['payment'],
+    "DATA. PAG": pd.to_datetime(df['payment'], errors='coerce').dt.strftime('%d-%m-%Y'),
     "NF": df['number nf'],
+    "TERMO": pd.to_datetime(df['term'], errors='coerce').dt.strftime('%d-%m-%Y'),
+    "DOCUMENTACAO": pd.to_datetime(df['files'], errors='coerce').dt.strftime('%d-%m-%Y %H:%M:%S'),
     "ISENTO": "",
     "V. ISENTO": "",
     "OBS SAC": "",
     "SAC": "",
   })
-
+  print(depot)
+  df_cobranca['ENTRADA'] = pd.to_datetime(df_cobranca['ENTRADA'], format='%d-%m-%Y %H:%M:%S', errors='coerce')
 
   df_cobranca = gerator_sac(df_cobranca, df)
   df_for_dates = dates_df(df_cobranca, depot)
-  list_datas = {
-    'new': [],
-    'duplicad': pd.DataFrame(),
-    'update': pd.DataFrame()
-  }
-  print(depot)
 
   dataframes_to_concat = [group for (year, month), group in df_for_dates['df_for_months']]
   df_concat = pd.concat(dataframes_to_concat, axis=0, ignore_index=True) 
-  df_concat['ENTRADA'] = pd.to_datetime(df_concat['ENTRADA'], format='%d-%m-%Y %H:%M:%S')
 
   first_months = df_for_dates['months'][0]
   last_months = df_for_dates['months'][-1]
-
-  print(first_months)
-  print(last_months)
-
   sheets = read_sheets(depot, first_months, last_months)
 
-  if len(sheets) != 0:
-    list_dfs = []
-    for sheest in sheets:
-      list_dfs.append(sheet_for_dataframe(sheest))
-
+  list_datas = {'new': [], 'duplicad': pd.DataFrame(), 'update': pd.DataFrame()}
+  if sheets:
+    list_dfs = [sheet_for_dataframe(sheet) for sheet in sheets]      
     df_sheet = pd.concat(list_dfs, axis=0, ignore_index=True)
-    list_units = df_sheet['UNIDADE'].to_list()
 
+    list_units = df_sheet['UNIDADE'].to_list()
     df_new_datas = df_concat[~df_concat['UNIDADE'].isin(list_units)]
     df_old_datas = df_concat[df_concat['UNIDADE'].isin(list_units)]
 
     list_olds = df_old_datas['UNIDADE'].to_list() 
     df_update = update_df(df_sheet, df_old_datas)
-
     df_duplicated = df_update[df_update['UNIDADE'].isin(list_olds)] if not df_update.empty else pd.DataFrame()
 
     list_datas['update'] = df_update
@@ -86,8 +75,8 @@ def process_spreadsheet(file_path, depot, set_progress):
 
   df_new = list_datas['new']
   df_old = list_datas['duplicad']
-
   df_comex = comex(df_new, set_progress)
+
   clean_uploads_folder(limit=10)
   name_sheet = save_sheet_cobran([df_comex, df_old], file_path, depot)
 
@@ -104,49 +93,36 @@ def process_spreadsheet(file_path, depot, set_progress):
 
 
 def update_df(df_dados, df_novos):
-  if len(df_novos) > 0:
-    for index, row in df_novos.iterrows():
-      idx = df_dados[df_dados['UNIDADE'] == row['UNIDADE']].index
-
-      if not idx.empty:
-        df_dados.loc[idx, 'DATA. PAG'] = row['DATA. PAG']
-        df_dados.loc[idx, 'VALORES'] = int(row['VALORES'])
-
-        nf_value = pd.to_numeric(row['NF'], errors='coerce')
-        
-        if pd.notna(nf_value):
-          df_dados.loc[idx, 'NF'] = int(nf_value)
-        else:
-          df_dados.loc[idx, 'NF'] = ''
+  if df_novos.empty:
+    return pd.DataFrame()
   
-        df_dados.loc[idx, 'ISENTO'] = row['ISENTO']
-        df_dados.loc[idx, 'OBS SAC'] = row['OBS SAC']
-        df_dados.loc[idx, 'SAC'] = row['SAC']
+  for index, row in df_novos.iterrows():
+    idx = df_dados[df_dados['UNIDADE'] == row['UNIDADE']].index
 
-        if pd.notna(row['V. ISENTO']) and row['V. ISENTO'] != '':
-          df_dados.loc[idx, 'V. ISENTO'] = int(row['V. ISENTO'])
-        else:
-          df_dados.loc[idx, 'V. ISENTO'] = ''
+    if not idx.empty:
+      df_dados.loc[idx, 'DATA. PAG'] = row['DATA. PAG']
+      df_dados.loc[idx, 'VALORES'] = int(row['VALORES'])
+      df_dados.loc[idx, 'NF'] = int(row['NF']) if pd.notna(row['NF']) else ''
+      df_dados.loc[idx, 'TERMO'] = row['TERMO']
+      df_dados.loc[idx, 'DOCUMENTACAO'] = row['DOCUMENTACAO']
+      df_dados.loc[idx, 'ISENTO'] = row['ISENTO']
+      df_dados.loc[idx, 'OBS SAC'] = row['OBS SAC']
+      df_dados.loc[idx, 'SAC'] = row['SAC']
+      df_dados.loc[idx, 'V. ISENTO'] = int(row['V. ISENTO']) if pd.notna(row['V. ISENTO']) else ''
 
-    df_dados['NF'] = df_dados['NF'].astype(str).fillna('') 
-    df_dados['NF'] = df_dados['NF'].replace({pd.NA: '', 'nan': ''})
-    df_dados['DATA. PAG'] = df_dados['DATA. PAG'].replace({pd.NA: '', 'nan': ''})
-    return df_dados
-  return pd.DataFrame()
+  for col in ['NF', 'DATA. PAG', 'DOCUMENTACAO', 'TERMO']:
+    df_dados[col] = df_dados[col].fillna('').replace({'nan': ''})
+
+  return df_dados
 
 
 def save_sheet_cobran(dfs, sheet_path, depot):
-  if len(dfs) <= 0:
+  if not dfs:
     return dfs
   
   dfs = [df for df in dfs if len(df) > 0]
   df = pd.concat(dfs)
 
-  df["ENTRADA"] = df["ENTRADA"].astype(str)
-  df["ENTRADA"] = pd.to_datetime(df["ENTRADA"], errors='coerce').dt.strftime('%d-%m-%Y')
-  data_datetime = pd.to_datetime(df["ENTRADA"].iloc[0], format='%d-%m-%Y')
-
-  name_sheet = f'cobranca_{depot}_{data_datetime.strftime("%d-%m")}.xlsx'
   processed_file_path = os.path.join(sheet_path)
 
   df.to_excel(processed_file_path, index=False, engine='openpyxl')
@@ -204,11 +180,6 @@ def comex(df, set_progress):
   total_unidades = df['UNIDADE'].nunique()
    
   if not df.empty:
-    df['ENTRADA'] = pd.to_datetime(df['ENTRADA']).dt.strftime('%d-%m-%Y %H:%M:%S')
-    df['NF'] = df['NF'].astype(str).fillna('')
-    df['NF'] = df['NF'].replace({pd.NA: '', 'nan': ''})
-    df['DATA. PAG'] = df['DATA. PAG'].fillna('') 
-
     df = df.dropna(subset=['ENTRADA'])
 
     for i, unidade in enumerate(df['UNIDADE']):
