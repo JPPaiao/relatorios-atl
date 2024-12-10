@@ -75,7 +75,7 @@ def process_spreadsheet(file_path, depot, set_progress):
 
   df_new = list_datas['new']
   df_old = list_datas['duplicad']
-  df_comex = comex(df_new, set_progress)
+  df_comex = comex(df_new, set_progress, depot)
 
   clean_uploads_folder(limit=10)
   name_sheet = save_sheet_cobran([df_comex, df_old], file_path, depot)
@@ -173,9 +173,9 @@ def formatar_cnpj(cnpj):
 
 
 
-def comex(df, set_progress):
+def comex(df, set_progress, depot):
   set_progress(0)
-  print('processando')
+  print('processando', depot)
  
   total_unidades = df['UNIDADE'].nunique()
    
@@ -216,5 +216,5 @@ def comex(df, set_progress):
     df = df.drop_duplicates(subset=['UNIDADE'])
   
   set_progress(100)  
-  print('processado')
+  print('processado', depot)
   return df

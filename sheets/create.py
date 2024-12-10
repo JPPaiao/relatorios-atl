@@ -9,13 +9,13 @@ def create_data(values, depot):
     sheet = main()
     spreadsheet = sheet['sheet']
     sheet_ids = sheet['sheet_ids']
-    process_data_by_month(values, spreadsheet, sheet_ids[depot])
+    process_data_by_month(values, spreadsheet, sheet_ids[depot], depot)
     
   except HttpError as error:
-    print(f"An error occurred: {error}")
+    print(f"An error occurred: {error}") 
     return error
 
-def process_data_by_month(df_new_sheet, service, sheet_ids):
+def process_data_by_month(df_new_sheet, service, sheet_ids, depot):
   old = df_new_sheet['old']
   new = df_new_sheet['new']
 
@@ -27,7 +27,7 @@ def process_data_by_month(df_new_sheet, service, sheet_ids):
       month_name = f"{month:02}-{year}" 
 
       sheet_format = dataframe_for_sheet(group, True)
-      print('criado')
+      print('criado', depot)
       update_sheet(sheet_format, service, sheet_ids, month_name)
   
   if not new.empty:
@@ -37,7 +37,7 @@ def process_data_by_month(df_new_sheet, service, sheet_ids):
       month_name = f"{month:02}-{year}" 
 
       sheet_format = dataframe_for_sheet(group)
-      print('criado')
+      print('criado', depot)
       add_sheet(sheet_format, service, sheet_ids, month_name)
 
 def update_sheet(datas, service, sheet_id, worksheet):

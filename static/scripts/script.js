@@ -129,19 +129,18 @@ async function renderTable(e) {
     // Se a entrada contém data e hora
     if (data.includes('-') && data.includes(':') && data.length >= 19) {
         const [datePart, timePart] = data.split(' ') // Separa a data e a hora
-        const [year, month, day] = datePart.split('-') // Divide a data no formato 'YYYY-MM-DD'
+        const [day, month, year] = datePart.split('-') // Divide a data no formato 'YYYY-MM-DD'
         return `${day}/${month}/${year} ${timePart}` // Retorna no formato 'DD/MM/YYYY HH:MM:SS'
-    }
-
-    // Se a entrada contém apenas a data
-    if (data.includes('-') && data.length === 10) {
-        const [year, month, day] = data.split('-') // Divide a data no formato 'YYYY-MM-DD'
+      }
+      
+      // Se a entrada contém apenas a data
+      if (data.includes('-') && data.length === 10) {
+        const [day, month, year] = data.split('-') // Divide a data no formato 'YYYY-MM-DD'
         return `${day}/${month}/${year}` // Retorna no formato 'DD/MM/YYYY'
     }
-
     // Caso não seja uma data válida, retorna como está
     return data
-}
+  }
 
   const table = $('#table-container').DataTable({
     data: dataFormat.data,
@@ -186,7 +185,19 @@ async function renderTable(e) {
         }
       },
       {
+        target: 12,
+        render: (data, type, row) => {
+          return formatDate(data)
+        }
+      },
+      {
         target: 13,
+        render: (data, type, row) => {
+          return formatDate(data)
+        }
+      },
+      {
+        target: 15,
         render: DataTable.render.number(null, null, 0, 'R$ ')
       },
     ],
