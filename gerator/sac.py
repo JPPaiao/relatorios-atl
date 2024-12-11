@@ -3,6 +3,7 @@ def gerator_sac(df_new, df_old):
 
   remarks = {
     '': '',
+    '0': '',
     '1': 'fotos não constam sujeira',
     '2': 'sem necessidade de lavar ou varrer',
     '3': 'fotos de origem comprovam piso sujo',

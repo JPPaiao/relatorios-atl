@@ -1,13 +1,7 @@
 from googleapiclient.errors import HttpError
 import pandas as pd
-from dotenv import load_dotenv
-import os
-import ast
 
-load_dotenv()
-
-COLUMNS = ast.literal_eval(os.getenv('COLUMNS')) 
-# COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ISENTO',	'OBS SAC',	'SAC']
+COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ISENTO',	'OBS SAC',	'SAC']
 
 def sheet_for_dataframe(sheet):
   try:
@@ -32,12 +26,14 @@ def sheet_for_dataframe(sheet):
 def dataframe_for_sheet(df, collumn=False):
   if not df.empty:
     df['ENTRADA'] = df['ENTRADA'].apply(format_date)
+    for col in ['NF', 'DATA. PAG', 'DOCUMENTACAO', 'TERMO']:
+      df[col] = df[col].fillna('').replace({'nan': ''})
 
     convert = df.values.tolist()
 
     if convert[0][0] != 'UNIDADE' and collumn:
       convert.insert(0, COLUMNS)
-
+    
     return convert
   else:
     print("Nenhum dado encontrado.")

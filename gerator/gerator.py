@@ -71,7 +71,7 @@ def process_spreadsheet(file_path, depot, set_progress):
     list_datas['duplicad'] = df_duplicated
     list_datas['new'] = df_new_datas
   else:
-    list_datas['new'] = df_concat
+    list_datas['new'] = df_concat  
 
   df_new = list_datas['new']
   df_old = list_datas['duplicad']
@@ -103,8 +103,8 @@ def update_df(df_dados, df_novos):
       df_dados.loc[idx, 'DATA. PAG'] = row['DATA. PAG']
       df_dados.loc[idx, 'VALORES'] = int(row['VALORES'])
       df_dados.loc[idx, 'NF'] = int(row['NF']) if pd.notna(row['NF']) else ''
-      df_dados.loc[idx, 'TERMO'] = row['TERMO']
-      df_dados.loc[idx, 'DOCUMENTACAO'] = row['DOCUMENTACAO']
+      df_dados.loc[idx, 'TERMO'] = row['TERMO'] if pd.notna(row['TERMO']) else ''
+      df_dados.loc[idx, 'DOCUMENTACAO'] = row['DOCUMENTACAO'] if pd.notna(row['DOCUMENTACAO']) else ''
       df_dados.loc[idx, 'ISENTO'] = row['ISENTO']
       df_dados.loc[idx, 'OBS SAC'] = row['OBS SAC']
       df_dados.loc[idx, 'SAC'] = row['SAC']
