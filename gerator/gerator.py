@@ -108,7 +108,7 @@ def update_df(df_dados, df_novos):
       df_dados.loc[idx, 'ISENTO'] = row['ISENTO']
       df_dados.loc[idx, 'OBS SAC'] = row['OBS SAC']
       df_dados.loc[idx, 'SAC'] = row['SAC']
-      df_dados.loc[idx, 'V. ISENTO'] = int(row['V. ISENTO']) if pd.notna(row['V. ISENTO']) else ''
+      df_dados.loc[idx, 'V. ISENTO'] = row['V. ISENTO']
 
   for col in ['NF', 'DATA. PAG', 'DOCUMENTACAO', 'TERMO']:
     df_dados[col] = df_dados[col].fillna('').replace({'nan': ''})

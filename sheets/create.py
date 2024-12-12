@@ -27,8 +27,7 @@ def process_data_by_month(df_new_sheet, service, sheet_ids, depot):
       month_name = f"{month:02}-{year}" 
 
       sheet_format = dataframe_for_sheet(group, True)
-      print('criado', depot)
-      update_sheet(sheet_format, service, sheet_ids, month_name)
+      update_sheet(sheet_format, service, sheet_ids, month_name, depot)
   
   if not new.empty:
     grouped = new.groupby([new['ENTRADA'].dt.year, new['ENTRADA'].dt.month])
@@ -37,10 +36,9 @@ def process_data_by_month(df_new_sheet, service, sheet_ids, depot):
       month_name = f"{month:02}-{year}" 
 
       sheet_format = dataframe_for_sheet(group)
-      print('criado', depot)
-      add_sheet(sheet_format, service, sheet_ids, month_name)
+      add_sheet(sheet_format, service, sheet_ids, month_name, depot)
 
-def update_sheet(datas, service, sheet_id, worksheet):
+def update_sheet(datas, service, sheet_id, worksheet, depot):
   body = { "values": datas }
   service.values().update(
     spreadsheetId=sheet_id,
@@ -48,8 +46,9 @@ def update_sheet(datas, service, sheet_id, worksheet):
     valueInputOption='RAW',
     body=body
   ).execute()
+  print('criado', depot)
 
-def add_sheet(datas, service, sheet_id, worksheet):
+def add_sheet(datas, service, sheet_id, worksheet, depot):
   body = { "values": datas }
   service.values().append(
     spreadsheetId=sheet_id,
@@ -58,3 +57,4 @@ def add_sheet(datas, service, sheet_id, worksheet):
     insertDataOption='INSERT_ROWS',
     body=body
   ).execute()
+  print('criado', depot)

@@ -7,7 +7,6 @@ sheet = main()
 
 def read_sheets(depot, start_month=None, end_month=None):
   try:
-    global cache
     sheet_ids = sheet['sheet_ids']
     time.sleep(1)
 
@@ -44,7 +43,7 @@ def read_sheets(depot, start_month=None, end_month=None):
         except HttpError as err:
           print(f"Erro ao acessar dados para o mes {month}: {err}")
 
-      return days_sheet
+      return days_sheet if days_sheet else months_sheet
 
     if not start_month and not end_month:
       month = filter_month(depot)
