@@ -18,33 +18,40 @@ if not os.path.exists(UPLOAD_FOLDER):
   os.makedirs(UPLOAD_FOLDER)
 
 
-def process_spreadsheet(file_path, depot, set_progress):
-  df = pd.read_excel(file_path) 
+def process_spreadsheet(file_path=None, depot=None, set_progress=None, df_reprocess=None):
+  df_cobranca = pd.DataFrame()
 
-  df_cobranca = pd.DataFrame({
-    "UNIDADE": df["cntr"],
-    "TIPO": df['type'],
-    "OWNER": df['own'],
-    "ENTRADA": df['datein'],
-    "CNPJ AGENDADO": df["importer"],
-    "CNPJ HBL": "",
-    "TRANSPORTADORA": df["carrier"],
-    "CNPJ TRANSPORTADORA": df["carrier_cnpj"],
-    "VALORES": df['price_use'],
-    "OBS": "",
-    "DATA. PAG": pd.to_datetime(df['payment'], errors='coerce').dt.strftime('%d-%m-%Y'),
-    "NF": df['number nf'],
-    "TERMO": pd.to_datetime(df['term'], errors='coerce').dt.strftime('%d-%m-%Y'),
-    "DOCUMENTACAO": pd.to_datetime(df['files'], errors='coerce').dt.strftime('%d-%m-%Y %H:%M:%S'),
-    "ISENTO": "",
-    "V. ISENTO": "",
-    "OBS SAC": "",
-    "SAC": "",
-  })
+  if file_path:
+    df = pd.read_excel(file_path)
+
+    df_cobranca = pd.DataFrame({
+      "UNIDADE": df["cntr"],
+      "TIPO": df['type'],
+      "OWNER": df['own'],
+      "ENTRADA": df['datein'],
+      "CNPJ AGENDADO": df["importer"],
+      "CNPJ HBL": "",
+      "TRANSPORTADORA": df["carrier"],
+      "CNPJ TRANSPORTADORA": df["carrier_cnpj"],
+      "VALORES": df['price_use'],
+      "OBS": "",
+      "DATA. PAG": pd.to_datetime(df['payment'], errors='coerce').dt.strftime('%d-%m-%Y'),
+      "NF": df['number nf'],
+      "TERMO": pd.to_datetime(df['term'], errors='coerce').dt.strftime('%d-%m-%Y'),
+      "DOCUMENTACAO": pd.to_datetime(df['files'], errors='coerce').dt.strftime('%d-%m-%Y %H:%M:%S'),
+      "ISENTO": "",
+      "V. ISENTO": "",
+      "OBS SAC": "",
+      "SAC": "",
+    })
+
+
+    df_cobranca = gerator_sac(df_cobranca, df)
+  elif not df_reprocess.empty:
+    df_cobranca = df_reprocess
+
   print(depot)
-  df_cobranca['ENTRADA'] = pd.to_datetime(df_cobranca['ENTRADA'], format='%d-%m-%Y %H:%M:%S', errors='coerce')
-
-  df_cobranca = gerator_sac(df_cobranca, df)
+  df_cobranca['ENTRADA'] = pd.to_datetime(df_cobranca['ENTRADA'], format='%d-%m-%Y %H:%M:%S', errors='coerce') 
   df_for_dates = dates_df(df_cobranca, depot)
 
   dataframes_to_concat = [group for (year, month), group in df_for_dates['df_for_months']]
@@ -77,15 +84,18 @@ def process_spreadsheet(file_path, depot, set_progress):
   df_old = list_datas['duplicad']
   df_comex = comex(df_new, set_progress, depot)
 
-  clean_uploads_folder(limit=10)
-  name_sheet = save_sheet_cobran([df_comex, df_old], file_path, depot)
+  name_sheet = ''
+  if file_path:
+    clean_uploads_folder(limit=10)
+    name_sheet = save_sheet_cobran([df_comex, df_old], file_path, depot)
 
+  print(df_new)
   sheet_process = {
     'df_process': {
       'new': df_comex,
       'old': list_datas['update']
     },
-    'name_sheet': name_sheet
+    'name_sheet': name_sheet 
   }
 
   return sheet_process 
@@ -101,8 +111,14 @@ def update_df(df_dados, df_novos):
 
     if not idx.empty:
       df_dados.loc[idx, 'DATA. PAG'] = row['DATA. PAG']
-      df_dados.loc[idx, 'VALORES'] = int(row['VALORES'])
-      df_dados.loc[idx, 'NF'] = int(row['NF']) if pd.notna(row['NF']) else ''
+      df_dados.loc[idx, 'VALORES'] = df_dados['VALORES'].apply(
+        lambda x: int(float(str(x).replace(',', '.'))) if pd.notna(x) and x != '' else ''
+      )
+      df_dados.loc[idx, 'NF'] = (
+        int(float(row['NF']))
+        if pd.notna(row['NF']) and row['NF'] != '' 
+        else ''
+      )
       df_dados.loc[idx, 'TERMO'] = row['TERMO'] if pd.notna(row['TERMO']) else ''
       df_dados.loc[idx, 'DOCUMENTACAO'] = row['DOCUMENTACAO'] if pd.notna(row['DOCUMENTACAO']) else ''
       df_dados.loc[idx, 'ISENTO'] = row['ISENTO']
@@ -174,15 +190,18 @@ def formatar_cnpj(cnpj):
 
 
 def comex(df, set_progress, depot):
-  set_progress(0)
+  if set_progress:
+    set_progress(0)
   print('processando', depot)
  
   total_unidades = df['UNIDADE'].nunique()
-   
+
   if not df.empty:
     df = df.dropna(subset=['ENTRADA'])
 
     for i, unidade in enumerate(df['UNIDADE']):
+      if pd.notna(df.loc[df['UNIDADE'] == unidade, 'OBS'].values[0]) and df.loc[df['UNIDADE'] == unidade, 'OBS'].values[0].strip() != '':
+        continue
       df_get_uni = pd.DataFrame(get_cnpj_unit(unidade))
 
       dados_validos = df_get_uni.loc[df_get_uni['importador_cnpj'] != ""]
@@ -200,21 +219,29 @@ def comex(df, set_progress, depot):
       if dados_ordenados.empty:
         df.loc[df["UNIDADE"] == unidade, 'CNPJ HBL'] = cnpj_mais_recente
         progress_percent = (i + 1) / total_unidades * 100
-        set_progress(round(progress_percent))
+        if set_progress:
+          set_progress(round(progress_percent))
         continue
 
       if dados_ordenados.iloc[0]['tipo_conhecimento'] != 'HBL':
         df.loc[df["UNIDADE"] == unidade, 'OBS'] = f'SEM HBL/AGENDADO NO {dados_ordenados.iloc[0]["tipo_conhecimento"]}'
+      else:
+        df.loc[df["UNIDADE"] == unidade, 'OBS'] = ''
 
       df.loc[df["UNIDADE"] == unidade, 'CNPJ HBL'] = cnpj_mais_recente
       progress_percent = (i + 1) / total_unidades * 100
-      set_progress(round(progress_percent))
+      print(round(progress_percent))
+
+      if set_progress:
+        set_progress(round(progress_percent))
 
     df['CNPJ HBL'] = df['CNPJ HBL'].apply(formatar_cnpj)
     df['CNPJ AGENDADO'] = df['CNPJ AGENDADO'].apply(formatar_cnpj)
     df['CNPJ TRANSPORTADORA'] = df['CNPJ TRANSPORTADORA'].apply(formatar_cnpj)
     df = df.drop_duplicates(subset=['UNIDADE'])
   
-  set_progress(100)  
+  if set_progress:
+    set_progress(100)
+
   print('processado', depot)
   return df

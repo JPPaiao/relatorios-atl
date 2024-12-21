@@ -2,7 +2,7 @@ from threading import Lock
 import threading
 from datetime import datetime
 import calendar
-from flask import Flask, jsonify, redirect, render_template, request, send_from_directory, url_for, Response
+from flask import Flask, jsonify, redirect, render_template, request, send_from_directory
 import pandas as pd
 from gerator.gerator import process_spreadsheet
 from sheets.convert_df import sheet_for_dataframe
@@ -83,8 +83,6 @@ def get_progress():
 
   status = 'completed' if progress_status >= 100 else 'processing'
   return jsonify({'status': status, 'progress': progress_status})
-
-
 
 @app.route('/read_sheet/<string:depot>')
 def read_sheet(depot):

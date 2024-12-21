@@ -15,14 +15,8 @@ HOMOLOG = {
   'gja': os.getenv('ID_HOMOLOG'),
   'pga': os.getenv('ID_HOMOLOG'),
 }
- 
-# IDS = {
-#   'nav': os.getenv('ID_NAV'),
-#   'gja': os.getenv('ID_GJA'),
-#   'pga': os.getenv('ID_PGA'),
-# }
 
-SAMPLE_RANGE_NAME = "Página1"
+SAMPLE_RANGE_NAME = "Página1" 
 
 # def main():
 #   creds = None
