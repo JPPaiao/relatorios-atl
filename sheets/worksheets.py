@@ -5,7 +5,7 @@ import os
 import ast
 
 load_dotenv()
-COLUMNS = os.getenv('COLUMNS')
+COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ISENTO',	'OBS SAC',	'SAC']
 
 service = main()
 sheet_ids = service['sheet_ids']
@@ -30,7 +30,7 @@ def create_sheet_if_not_exists(sheet_name, depot):
       body=body
     ).execute()
 
-    body = {'values': [ast.literal_eval(COLUMNS)]}
+    body = {'values': [COLUMNS]}
     service['sheet'].values().update(
       spreadsheetId=sheet_ids[depot],
       range=f"{sheet_name}!A1",

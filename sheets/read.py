@@ -115,7 +115,7 @@ def filter_month_range(depot, start_month, end_month):
   
   if start_month == end_month:
     (year, month) = convert_date_to_tuple(start_month)
-    return [f'{month}-{year}']
+    return [f'{month:02}-{year}']
 
   sheet_ids = sheet['sheet_ids']
   sheet_metadata = sheet['sheet'].get(spreadsheetId=sheet_ids[depot]).execute()
