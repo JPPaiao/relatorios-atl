@@ -2,9 +2,11 @@ from threading import Lock
 import threading
 from datetime import datetime
 import calendar
-from flask import Flask, jsonify, redirect, render_template, request, send_from_directory
+from flask import Flask, jsonify, redirect, render_template, request, send_file, send_from_directory
 import pandas as pd
+from gerator.clean_uploads import clean_uploads_folder
 from gerator.gerator import process_spreadsheet
+from gerator.hbl import get_hbl_process
 from sheets.convert_df import sheet_for_dataframe
 from sheets.create import create_data
 from sheets.read import read_sheets
@@ -63,6 +65,29 @@ def allowed_file(filename):
 def index():
   return render_template('index.html')
 
+@app.route('/get-hbl/<string:depot>', methods=['POST'])
+def get_hbl(depot):
+  if 'file' not in request.files:
+    return "Nenhum arquivo foi enviado!", 400
+    
+  file = request.files['file']
+
+  if not allowed_file(file.filename):
+    return "Arquivo inválido!", 400
+  
+  if file.filename == '':
+    return "Nenhum arquivo selecionado!", 400
+  
+  if file.mimetype != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+    return "Tipo de arquivo inválido!", 400
+  
+  if file and file.filename.endswith('.xlsx'):
+    clean_uploads_folder(limit=10)
+    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(file_path)
+
+    hbls = get_hbl_process(file_path, depot)
+    return send_file(hbls, as_attachment=True, download_name='arquivo_processado.xlsx')
 
 @app.route('/download_processed_file')
 def download_processed_file():
@@ -83,6 +108,7 @@ def get_progress():
 
   status = 'completed' if progress_status >= 100 else 'processing'
   return jsonify({'status': status, 'progress': progress_status})
+
 
 @app.route('/read_sheet/<string:depot>')
 def read_sheet(depot):

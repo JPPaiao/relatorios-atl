@@ -45,6 +45,14 @@
               <button id="update-pga" name="pga" class="button-restart" >PGA</button>
             </div>
           </div>
+          <div class="update">
+            <span>Buscar HBL</span>
+            <div class="update-buttons">
+              <button id="get-hbl-nav" name="nav" class="button-restart" >NAV</button>
+              <button id="get-hbl-gja" name="gja" class="button-restart" >GJA</button>
+              <button id="get-hbl-pga" name="pga" class="button-restart" >PGA</button>
+            </div>
+          </div>
         </div>
         <hr />
         <table
@@ -97,5 +105,6 @@
     <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
     <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/getHbl.js') }}"></script>
   </body>
 </html>
