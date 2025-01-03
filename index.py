@@ -65,6 +65,7 @@ def allowed_file(filename):
 def index():
   return render_template('index.html')
 
+
 @app.route('/get-hbl/<string:depot>', methods=['POST'])
 def get_hbl(depot):
   if 'file' not in request.files:
@@ -88,6 +89,7 @@ def get_hbl(depot):
 
     hbls = get_hbl_process(file_path, depot)
     return send_file(hbls, as_attachment=True, download_name='arquivo_processado.xlsx')
+
 
 @app.route('/download_processed_file')
 def download_processed_file():

@@ -26,8 +26,7 @@ def get_hbl_process(file_path, depot):
 
     list_units = df_process['UNIDADE'].to_list()
     df_sheets = df_sheet_concat[df_sheet_concat['UNIDADE'].isin(list_units)]
-    df_hbls_process = df_sheet_concat[['UNIDADE', 'ENTRADA', 'VALORES', 'TRANSPORTADORA', 'CNPJ AGENDADO', 'CNPJ HBL']]
-    print(df_hbls_process)
+    df_hbls_process = df_sheets[['UNIDADE', 'ENTRADA', 'VALORES', 'TRANSPORTADORA', 'CNPJ AGENDADO', 'CNPJ HBL']]
 
     process_file_path = file_path.replace('.xlsx', '_hbl.xlsx')
     df_hbls_process.to_excel(process_file_path, index=False)
