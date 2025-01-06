@@ -1,5 +1,6 @@
 import os.path
 # import webbrowser
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -46,11 +47,18 @@ def main():
   # Verificar se as credenciais são válidas
   if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
-      creds.refresh(Request())
-    else:
+      try:
+        creds.refresh(Request())
+      except RefreshError:
+        creds = None
+    if not creds:
+      if not os.path.exists(client_secret_path):
+        raise FileNotFoundError("Arquivo client_secret.json não encontrado.")
+      
       # Executa o fluxo de autenticação para obter novas credenciais
       flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, SCOPES)
       creds = flow.run_local_server(port=0)
+
     # try:
     #   creds = flow.run_local_server(port=0)
     # except webbrowser.Error:
