@@ -87,8 +87,13 @@ def get_hbl(depot):
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
 
-    hbls = get_hbl_process(file_path, depot)
-    return send_file(hbls, as_attachment=True, download_name='arquivo_processado.xlsx')
+    process_file_path, new_file_name = get_hbl_process(file_path, depot)
+
+    if not process_file_path or not os.path.exists(process_file_path):
+      return "Erro ao processar o arquivo.", 500
+    
+
+    return send_file(process_file_path, as_attachment=True, download_name=new_file_name)
 
 
 @app.route('/download_processed_file')

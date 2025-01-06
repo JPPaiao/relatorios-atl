@@ -1,7 +1,12 @@
+import os
 import pandas as pd
 from sheets.convert_df import sheet_for_dataframe
 from sheets.read import read_sheets
 from sheets.worksheets import dates_df
+from dotenv import load_dotenv
+
+load_dotenv()
+UPLOAD_FOLDER = os.getenv('UPLOAD')
 
 def get_hbl_process(file_path, depot):
   if not file_path:
@@ -26,9 +31,11 @@ def get_hbl_process(file_path, depot):
 
     list_units = df_process['UNIDADE'].to_list()
     df_sheets = df_sheet_concat[df_sheet_concat['UNIDADE'].isin(list_units)]
-    df_hbls_process = df_sheets[['UNIDADE', 'ENTRADA', 'VALORES', 'TRANSPORTADORA', 'CNPJ AGENDADO', 'CNPJ HBL']]
-
-    process_file_path = file_path.replace('.xlsx', '_hbl.xlsx')
+    df_hbls_process = df_sheets[['UNIDADE', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS' ]]
+    
+    new_file_name = f"hbl_{depot}.xlsx"
+    process_file_path = os.path.join(UPLOAD_FOLDER, new_file_name)
     df_hbls_process.to_excel(process_file_path, index=False)
 
-    return process_file_path
+    return process_file_path, new_file_name
+  raise ValueError("Nenhuma planilha válida foi encontrada para processamento.")
