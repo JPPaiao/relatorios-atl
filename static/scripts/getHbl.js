@@ -104,8 +104,6 @@ function getHbls(e) {
         uploadBtn.disabled = true
         link = document.createElement('a')
 
-        console.log(formData)
-
         try {
           const data = await fetch(`/get-hbl/${e.target.name}`, {
             method: 'POST',
@@ -123,6 +121,18 @@ function getHbls(e) {
             throw new Error('Erro durante o envio do arquivo.')
           }
 
+          console.log(data)
+
+          const contentDisposition = data.headers.get('Content-Disposition')
+          let filename = 'arquivo_processado.xlsx'
+
+          if (contentDisposition && contentDisposition.includes('filename=')) {
+            const match = contentDisposition.match(/filename="(.+?)"/)
+            if (match && match[1]) {
+                filename = match[1]
+            }
+          }
+
           // Obter a resposta do servidor (link para download)
           const blob = await data.blob()
           const downloadUrl = window.URL.createObjectURL(blob)
@@ -134,10 +144,12 @@ function getHbls(e) {
               showCloseButton: true,
           }).then(() => {
               // Acionar o download automaticamente após clicar em "OK"
-              const downloadLink = document.createElement('a');
-              downloadLink.href = downloadUrl;
-              downloadLink.download = 'arquivo_processado.xlsx'; // Nome padrão para o arquivo
-              downloadLink.click(); // Simula o clique para iniciar o download
+              const downloadLink = document.createElement('a')
+              downloadLink.href = downloadUrl
+              downloadLink.download = filename; // Usar o nome do arquivo do servidor
+              document.body.appendChild(downloadLink); // Necessário para Firefox
+              downloadLink.click();
+              document.body.removeChild(downloadLink);
           })
         } catch (e) {
           console.error("Erro ao realizar o upload:", e)
