@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 import os
 import ast
 
-load_dotenv()
-COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ISENTO',	'OBS SAC',	'SAC']
+# load_dotenv('../.env')
+# COLUMNS = os.getenv('COLUMNS')
+COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ORIGINAL', 'V. FINAL', 'V. DIFERENÇA',	'OBS SAC',	'SAC']
 
 service = main()
 sheet_ids = service['sheet_ids']

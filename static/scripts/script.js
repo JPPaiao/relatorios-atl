@@ -1,11 +1,19 @@
-const nav = document.getElementById('nav')
-const gja = document.getElementById('gja')
-const pga = document.getElementById('pga')
+var depot = null
 
-nav.addEventListener('click', renderTable)
-gja.addEventListener('click', renderTable)
-pga.addEventListener('click', renderTable)
+document.getElementById("opcoes").addEventListener("change", function() {
+  depot = this.value
+})
 
+document.getElementById('get').addEventListener('click', (e) => {
+  if (depot === null) {
+    Swal.fire({
+      title: 'Escolha um Depot primeiro',
+      icon: 'error'
+    })
+  } else {
+    renderTable(e)
+  }
+})
 
 function calcularDatasPadrao() {
   const hoje = new Date()
@@ -47,8 +55,6 @@ function selectButton(button) {
   button.classList.add('selected')
 }
 
-
-
 async function renderTable(e) {
   const dataAtual = document.getElementById("month-current").value
   const dataPassada = document.getElementById("month-pass").value
@@ -60,11 +66,11 @@ async function renderTable(e) {
   // Monta o intervalo de meses para enviar para o servidor (formato YYYY-MM a YYYY-MM)
   const meses = `${mesAnoPassado[2]}-${mesAnoPassado[1]}-${mesAnoPassado[0]}_${mesAnoAtual[2]}-${mesAnoAtual[1]}-${mesAnoAtual[0]}`
 
-  const data = await fetch(`/read_sheet/${e.target.name}?months=${meses}`).then(d => d.json())
+  const data = await fetch(`/read_sheet/${depot}?months=${meses}`).then(d => d.json())
   let dataFormat = {
     colmns: [],
     data: []
-  } 
+  }
 
   const dados_linhas = []
   
@@ -91,7 +97,9 @@ async function renderTable(e) {
         'TERMO': data[i]['TERMO'] || '',
         'DOCUMENTACAO': data[i]['DOCUMENTACAO'] || '',
         'ISENTO': data[i]['ISENTO'] || '',
-        'V_ISENTO': data[i]['V. ISENTO'] || '',
+        'V_ORIGINAL': data[i]['V. ORIGINAL'] || '',
+        'V_FINAL': data[i]['V. FINAL'] || '',
+        'V_DIFERENÇA': data[i]['V. DIFERENÇA'] || '',
         'OBS_SAC': data[i]['OBS SAC'] || '',
         'SAC': data[i]['SAC'] || '',
       })
@@ -115,7 +123,9 @@ async function renderTable(e) {
       { title: 'TERMO', data: 'TERMO' },
       { title: 'DOCUMENTAÇÃO', data: 'DOCUMENTACAO' },
       { title: 'ISENTO', data: 'ISENTO' },
-      { title: 'V. ISENTO', data: 'V_ISENTO' },
+      { title: 'V. ORIGINAL', data: 'V_ORIGINAL' },
+      { title: 'V. FINAL', data: 'V_FINAL' },
+      { title: 'V. DIFERENÇA', data: 'V_DIFERENÇA' },
       { title: 'OBS SAC', data: 'OBS_SAC' },
       { title: 'SAC', data: 'SAC' }
     ]
@@ -130,7 +140,7 @@ async function renderTable(e) {
     if (data.includes('-') && data.includes(':') && data.length >= 19) {
         const [datePart, timePart] = data.split(' ') // Separa a data e a hora
         const [day, month, year] = datePart.split('-') // Divide a data no formato 'YYYY-MM-DD'
-        return `${day}/${month}/${year} ${timePart}` // Retorna no formato 'DD/MM/YYYY HH:MM:SS'
+        return `${day}/${month}/${year}` // Retorna no formato 'DD/MM/YYYY HH:MM:SS'
       }
       
       // Se a entrada contém apenas a data

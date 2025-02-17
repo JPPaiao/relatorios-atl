@@ -16,7 +16,7 @@ def get_hbl_process(file_path, depot):
 
   df_process = pd.DataFrame({
     "UNIDADE": df["cntr"],
-    "ENTRADA": pd.to_datetime(df["datein"], format='%d-%m-%Y %H:%M:%S', errors='coerce')
+    "ENTRADA": pd.to_datetime(df["datein"], format='%d-%m-%Y', errors='coerce')
   })
 
   df_for_dates = dates_df(df_process, depot)
@@ -25,8 +25,8 @@ def get_hbl_process(file_path, depot):
   last_months = df_for_dates['months'][-1]
   sheets = read_sheets(depot, first_months, last_months)
 
-  if sheets:
-    list_dfs = [sheet_for_dataframe(sheet) for sheet in sheets]      
+  if sheets['sheet']:
+    list_dfs = [sheet_for_dataframe(sheet, sheets['columns']) for sheet in sheets['sheet']]      
     df_sheet_concat = pd.concat(list_dfs, axis=0, ignore_index=True)
 
     list_units = df_process['UNIDADE'].to_list()
@@ -37,5 +37,14 @@ def get_hbl_process(file_path, depot):
     process_file_path = os.path.join(UPLOAD_FOLDER, new_file_name)
     df_hbls_process.to_excel(process_file_path, index=False)
 
-    return process_file_path, new_file_name
+    return {
+      'status': 'completed',
+      'mensagem': 'Unidades não encontrados',
+      'data': { process_file_path, new_file_name }
+    }
+  else: 
+    return {
+      'status': 'erro',
+      'mensagem': 'Unidades não encontrados'
+    }
   raise ValueError("Nenhuma planilha válida foi encontrada para processamento.")

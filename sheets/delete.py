@@ -20,6 +20,7 @@ def filter_df(df: pd.DataFrame):
   print() 
   print('sem duplicadas')
   print(unique_duplicated)
+  print()
 
   return {
     'duplicateds': unique_duplicated,
@@ -31,7 +32,7 @@ def delete(df, depot):
   duplicateds = df_filter['duplicateds']
   non_duplicateds = df_filter['non_duplicated']
 
-  duplicateds['ENTRADA'] = pd.to_datetime(duplicateds['ENTRADA'], format='%d-%m-%Y %H:%M:%S', errors='coerce') 
+  duplicateds['ENTRADA'] = pd.to_datetime(duplicateds['ENTRADA'], format='%d-%m-%Y', errors='coerce') 
   grouped = duplicateds.groupby([duplicateds['ENTRADA'].dt.year, duplicateds['ENTRADA'].dt.month])
   months = []
 
@@ -43,15 +44,20 @@ def delete(df, depot):
     for (year, month), group in grouped:
       worksheets = f"{month:02}-{year}"
       months.append(worksheets)
+      print(months)
 
-      delete_sheet(service, sheet_id, worksheets, depot)
       print(worksheets)
       df_comex = comex(group, None, depot)
       final_df = pd.concat([non_duplicateds, df_comex], ignore_index=True)
+
+      for col in ['CNPJ AGENDADO', 'CNPJ HBL', 'CNPJ TRANSPORTADORA']:
+        final_df[col] = final_df[col].apply(format_cnpj)
+      
       df_process = {
         'old': final_df,
         'new': pd.DataFrame()
       }
+      delete_sheet(service, sheet_id, worksheets, depot)
       create_data(df_process, depot)
 
 
@@ -59,8 +65,12 @@ def delete(df, depot):
     print(f"An error occurred: {error}") 
     return error
 
+def format_cnpj(cnpj):
+  return str(cnpj).zfill(14)
+
 def delete_sheet(service, sheet_id, worksheet, depot):
-  body = {} 
+  body = {}
+  print('delete')
 
   service.values().clear(
     spreadsheetId=sheet_id[depot],

@@ -1,11 +1,17 @@
-// Função para abrir o modal usando SweetAlert2
-document.getElementById('update-nav').addEventListener('click', upload)
-document.getElementById('update-gja').addEventListener('click', upload)
-document.getElementById('update-pga').addEventListener('click', upload)
+document.getElementById('update').addEventListener('click', (e) => {
+  if (depot === null) {
+    Swal.fire({
+      title: 'Escolha um Depot primeiro',
+      icon: 'error'
+    })
+  } else {
+    upload(e)
+  }
+})
 
 function upload(e) {
   Swal.fire({
-    title: `Upload para ${e.target.name.toUpperCase()}`,
+    title: `Upload para ${depot.toUpperCase()}`,
     html: `
       <form id="upload-form" action="/create_sheet" method="POST" enctype="multipart/form-data">
         <div class="upload-container">
@@ -102,21 +108,28 @@ function upload(e) {
         uploadBtn.disabled = true
 
         try {
-          const data = await fetch(`/create_sheet/${e.target.name}`, {
+          const data = await fetch(`/create_sheet/${depot}`, {
             method: 'POST',
             body: formData
-          })
-          .catch(error => {
-            Swal.fire({
-              title: 'Erro ao enviar o arquivo!',
-              icon: 'error'
-            })
-            console.error('Erro no upload do arquivo:', error)
           })
 
           const statusInterval = setInterval(async () => {
             const progressResponse = await fetch('/progress')
-            if (!progressResponse.ok) throw new Error('Erro ao monitorar o progresso.')
+            .catch(e =>{
+              Swal.fire({
+                title: `<p>Erro no upload - ${e}<p>`,
+                icon: 'error'
+              })
+              clearInterval(statusInterval)
+            })
+            
+            if (progressResponse === undefined) {
+              Swal.fire({
+                title: `<p>Erro de servidor<p>`,
+                icon: 'error'
+              })
+              clearInterval(statusInterval)
+            }
 
             const dataProgress = await progressResponse.json()
             const progress = dataProgress.progress
@@ -132,7 +145,6 @@ function upload(e) {
               fileList.innerHTML = ''
               progressContainer.style.display = 'block'
               
-
               clearInterval(statusInterval)
               Swal.fire({
                 title: 'Processamento concluído!',
@@ -143,22 +155,37 @@ function upload(e) {
                 cancelButtonText: 'Cancelar'
               })
               .then((result) => {
-                  if (result.isConfirmed) {
-                    link.download = `${file.name}`
-                    console.log(link)
-                    link.click()
-                    dataProgress.status = 'completed'
-                  }
+                if (result.isConfirmed) {
+                  link.download = `${file.name}`
+                  console.log(link)
+                  link.click()
+                  dataProgress.status = 'completed'
+                }
+              })
+            } if (dataProgress.status === 'erro') {
+              clearInterval(statusInterval)
+              console.log('Erro no upload do arquivo:', dataProgress.erros)
+
+              let errorListHTML = '<ul style="text-align: left;">'
+              dataProgress.erros.forEach(erro => {
+                errorListHTML += `<li><strong>Unidade:</strong> ${erro.unidade} | <strong>Data:</strong> ${erro.data} | <strong>Erro:</strong> ${erro.mensagem}</li>`
+              })
+              errorListHTML += '</ul>'
+
+              Swal.fire({
+                title: `Erro nos Remarks de ${depot.toUpperCase()} `,
+                html: errorListHTML,
+                icon: 'error'
               })
             } else {
               progressBar.style.width = `${progress}%`
               uploadPercentage.textContent = `${progress}%`
             }
-          }, 10000)
-
+          }, 12000)
         } catch (error) {
+          console.log(error)
           Swal.fire({
-            title: 'Erro ao enviar o arquivo!',
+            title: `Erro no upload - ${error}`,
             icon: 'error'
           })
         }

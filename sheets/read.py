@@ -1,3 +1,4 @@
+from itertools import chain
 import time
 from googleapiclient.errors import HttpError
 import numpy as np
@@ -5,7 +6,7 @@ from connect_api.connect_api import main
 
 sheet = main()
 
-def read_sheets(depot, start_month=None, end_month=None):
+def read_sheets(depot, start_month=None, end_month=None, month=False):
   try:
     sheet_ids = sheet['sheet_ids']
     time.sleep(1)
@@ -18,6 +19,7 @@ def read_sheets(depot, start_month=None, end_month=None):
     if start_month and end_month:
       month_range = filter_month_range(depot, end_month, start_month)
       days_sheet = []
+      columns_value = []
 
       for month in month_range:
         print(month) 
@@ -25,6 +27,7 @@ def read_sheets(depot, start_month=None, end_month=None):
           result = sheet['sheet'].values().get(spreadsheetId=sheet_ids[depot], range=month).execute()
           values = result.get("values", [])
 
+          columns_value = values[0]
           date_separetor = start_month.split('-')
           
           if len(date_separetor) > 2:
@@ -32,7 +35,7 @@ def read_sheets(depot, start_month=None, end_month=None):
             if filtered_values:
               days_sheet.append(filtered_values)
           else:
-            if len(values) >= 1 and values[0][0] == 'UNIDADE':
+            if len(values) >= 1 and values[0][0] == 'UNIDADE' and month:
               if len(values[1:]) >= 1:
                 months_sheet.append(values[1:])
             elif len(values) > 0:
@@ -43,7 +46,10 @@ def read_sheets(depot, start_month=None, end_month=None):
         except HttpError as err:
           print(f"Erro ao acessar dados para o mes {month}: {err}")
 
-      return days_sheet if days_sheet else months_sheet
+      return {
+        'sheet': days_sheet if days_sheet else months_sheet,
+        'columns': columns_value
+      }
 
     if not start_month and not end_month:
       month = filter_month(depot)

@@ -22,38 +22,34 @@
   </head>
   <body>
     <div class="container">
-      
       <div id="datas" class="datas-table">
+        <!-- HOMOLOGAÇÃO -->
         <div class="header">
-          <div class="update">
-            <span>Buscar tabelas</span>
-            <div class="update-buttons">
-              <button type="submit" id="nav" name="nav" class="button-restart" onclick="selectButton(this)">NAV</button>
-              <button type="submit" id="gja" name="gja" class="button-restart" onclick="selectButton(this)">GJA</button>
-              <button type="submit" id="pga" name="pga" class="button-restart" onclick="selectButton(this)">PGA</button>
-            </div>
+          <div>
             <div>
               <input type="date" name="month-current" id="month-current">
               <input type="date" name="month-pass" id="month-pass">
             </div>
           </div>
-          <div class="update">
-            <span>Adicionar dados</span>
-            <div class="update-buttons">
-              <button id="update-nav" name="nav" class="button-restart" >NAV</button>
-              <button id="update-gja" name="gja" class="button-restart" >GJA</button>
-              <button id="update-pga" name="pga" class="button-restart" >PGA</button>
-            </div>
+          <div class="cont-depot">
+            <label for="opcoes" class="depot">Depot:</label>
+            <select id="opcoes" onchange="" class="button-select">
+                <option value="" disabled selected>Selecione...</option>
+                <option value="nav" id="nav" class="button-select">NAV</option>
+                <option value="gja" id="gja">GJA</option>
+                <option value="pga" id="pga">PGA</option>
+            </select>
           </div>
-          <div class="update">
-            <span>Buscar HBL</span>
-            <div class="update-buttons">
-              <button id="get-hbl-nav" name="nav" class="button-restart" >NAV</button>
-              <button id="get-hbl-gja" name="gja" class="button-restart" >GJA</button>
-              <button id="get-hbl-pga" name="pga" class="button-restart" >PGA</button>
-            </div>
+          <div>
+            <button class="button-select" id="get">Buscar dados</button>
           </div>
-        </div>
+          <div>
+            <button class="button-select" id="update">Adicionar dados</button>
+          </div>
+          <div>
+            <button class="button-select" id="get-hbl">Buscar HBL</button>
+          </div>
+        </div> 
         <hr />
         <table
           id="table-container"
@@ -80,7 +76,9 @@
               <th>TERMO</th>
               <th>DOCUMENTAÇÃO</th>
               <th>ISENTO</th>
-              <th>V. ISENTO</th>
+              <th>V. ORIGINAL</th>
+              <th>V. FINAL</th>
+              <th>V. DIFERENÇA</th>
               <th>OBS SAC</th>
               <th>SAC</th>
             </tr>

@@ -61,7 +61,7 @@
 
 .header {
   background-color: #ffffff;
-  font-size: 1.0em;
+  font-size: 1.2em;
   display: flex;
   gap: 6px;
   justify-content: space-around; 
@@ -70,6 +70,41 @@
   width: 100%;
   padding: 6px 2px;
   flex-wrap: wrap;
+}
+
+.cont-depot {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.cont-depot > select {
+  padding: 4px 10px 4px 0;
+  background-color: #585858;
+  font-size: 1em;
+  color: #fff;
+  outline: none;
+  margin: auto;
+  cursor: pointer;
+  border: none;
+}
+
+.depot {
+  padding: 5px 2px 5px 10px;
+  background-color: #585858;
+  color: #fff;
+
+}
+
+.button-select {
+  padding: 5px 10px;
+  background-color: #585858;
+  font-size: 1em;
+  color: #fff;
+  outline: none;
+  margin: auto;
+  cursor: pointer;
+  border: none;
 }
 
 .button-restart, .upload-button {

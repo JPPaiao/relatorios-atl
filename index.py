@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+import json
 from threading import Lock
 import threading
 from datetime import datetime
@@ -9,20 +11,27 @@ from gerator.gerator import process_spreadsheet
 from gerator.hbl import get_hbl_process
 from sheets.convert_df import sheet_for_dataframe
 from sheets.create import create_data
+from sheets.delete import delete, filter_df
 from sheets.read import read_sheets
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv('/var/www/geradorrelatorio/.env')
+# load_dotenv()
 app = Flask(__name__)
 limiter = Limiter(
   key_func=get_remote_address,
   app=app,
   default_limits=["100 per hour"]
 ) 
-progress = {'progress': 0}
+progress = {
+  'progress': 0,
+  'status': 'processing',
+  'mensagem': '',
+  'erros': []
+}
 progress_lock = Lock()
 name_sheet = ''
 event = threading.Event()
@@ -41,12 +50,16 @@ def set_progress(value: int):
   with progress_lock:
     progress['progress'] = value
 
+
 def process_sheet_task(file, depot):
   global progress, name_sheet
-
   set_progress(0)
 
   new_file = process_spreadsheet(file, depot, set_progress)
+  if new_file['status'] == 'erro':
+    progress['status'] = new_file['status']
+    progress['erros'] = new_file['erros']
+    return new_file
 
   name_sheet = new_file['name_sheet']
   processed_file_path = os.path.join(name_sheet)
@@ -54,7 +67,8 @@ def process_sheet_task(file, depot):
 
   create_data(new_file['df_process'], depot)
   set_progress(100)
-  print('fim') 
+  print('fim')
+  return new_file
 
 
 def allowed_file(filename):
@@ -87,11 +101,15 @@ def get_hbl(depot):
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
 
-    process_file_path, new_file_name = get_hbl_process(file_path, depot)
+    get_hbl = get_hbl_process(file_path, depot)
+    
+    if get_hbl['status'] == 'erro':
+      return get_hbl
+
+    process_file_path, new_file_name = get_hbl['data']
 
     if not process_file_path or not os.path.exists(process_file_path):
       return "Erro ao processar o arquivo.", 500
-    
 
     return send_file(process_file_path, as_attachment=True, download_name=new_file_name)
 
@@ -113,8 +131,7 @@ def get_progress():
   with progress_lock:
     progress_status = progress['progress']
 
-  status = 'completed' if progress_status >= 100 else 'processing'
-  return jsonify({'status': status, 'progress': progress_status})
+  return jsonify(progress)
 
 
 @app.route('/read_sheet/<string:depot>')
@@ -135,7 +152,7 @@ def read_sheet(depot):
   list_dfs = []
   sheets = read_sheets(depot, months_current, month_pass)
 
-  for month in sheets:
+  for month in sheets['sheet']:
     list_dfs.append(sheet_for_dataframe(month))
 
   df_concat = pd.concat(list_dfs)
@@ -165,20 +182,9 @@ def create_sheet(depot):
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
 
-    # def task_process():
-    #   print('inicio')
-    #   process_sheet_task(file_path, depot)
-    #   event.set()
-
-    # thread = threading.Thread(target=task_process)
-    # thread.start()
-    # event.wait()
-
     thread = threading.Thread(target=process_sheet_task, args=(file_path, depot))
     thread.start()
 
-    return send_from_directory(UPLOAD_FOLDER, name_sheet, as_attachment=True)
-  
   return "Arquivo inválido!", 400
 
 

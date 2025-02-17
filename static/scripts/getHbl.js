@@ -1,16 +1,24 @@
-const navHbl = document.getElementById('get-hbl-nav')
-const gjaHbl = document.getElementById('get-hbl-gja')
-const pgaHbl = document.getElementById('get-hbl-pga')
+// const navHbl = document.getElementById('get-hbl-nav')
+// const gjaHbl = document.getElementById('get-hbl-gja')
+// const pgaHbl = document.getElementById('get-hbl-pga')
 
-navHbl.addEventListener('click', getHbls)
-gjaHbl.addEventListener('click', getHbls)
-pgaHbl.addEventListener('click', getHbls)
+// navHbl.addEventListener('click', getHbls)
+// gjaHbl.addEventListener('click', getHbls)
 
-console.log(navHbl)
+document.getElementById('get-hbl').addEventListener('click', (e) => {
+  if (depot === null) {
+    Swal.fire({
+      title: 'Escolha um Depot primeiro',
+      icon: 'error'
+    })
+  } else {
+    getHbls(e)
+  }
+})
 
 function getHbls(e) {
   Swal.fire({
-    title: `Buscar HBLs de ${e.target.name.toUpperCase()}`,
+    title: `Buscar HBLs de ${depot.toUpperCase()}`,
     html: `
       <form id="upload-form" action="/create_sheet" method="POST" enctype="multipart/form-data">
         <div class="upload-container">
@@ -105,7 +113,9 @@ function getHbls(e) {
         link = document.createElement('a')
 
         try {
-          const data = await fetch(`/get-hbl/${e.target.name}`, {
+          
+          console.log(depot)
+          const data = await fetch(`/get-hbl/${depot}`, {
             method: 'POST',
             body: formData
           })
@@ -121,7 +131,6 @@ function getHbls(e) {
             throw new Error('Erro durante o envio do arquivo.')
           }
 
-          console.log(data)
 
           const contentDisposition = data.headers.get('Content-Disposition')
           let filename = 'arquivo_processado.xlsx'
