@@ -2,6 +2,7 @@ from googleapiclient.errors import HttpError
 import pandas as pd
 from datetime import datetime
 from connect_api.connect_api import main
+from gerator.scan import scan_repets
 import sheets.convert_df
 
 def create_data(values, depot):
@@ -19,6 +20,19 @@ def process_data_by_month(df_new_sheet, service, sheet_ids, depot):
   old = df_new_sheet['old']
   new = df_new_sheet['new']
 
+  # print()
+  # print()
+  # print('creat')
+  # scan_repets(new, old)
+
+  print()
+  print('DFS')
+  print()
+  print(old)
+  print()
+  print(new)
+  # trava
+
   if not old.empty:
     old['ENTRADA'] = pd.to_datetime(old['ENTRADA'], errors='coerce', dayfirst=True)
     grouped = old.groupby([old['ENTRADA'].dt.year, old['ENTRADA'].dt.month])
@@ -29,6 +43,9 @@ def process_data_by_month(df_new_sheet, service, sheet_ids, depot):
       year = int(year)
       month_name = f"{month:02}-{year}" 
       print(month_name) 
+      # print() 
+      # print('old')
+      # scan_repets(pd.DataFrame(), group)
 
       sheet_format = sheets.convert_df.dataframe_for_sheet(group, True)
       update_sheet(sheet_format, service, sheet_ids, month_name, depot)

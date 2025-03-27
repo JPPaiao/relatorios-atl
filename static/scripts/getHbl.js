@@ -126,10 +126,11 @@ function getHbls(e) {
             })
             console.error('Erro no upload do arquivo:', error)
           })
+          console.log(data)
 
-          if (!data.ok) {
-            throw new Error('Erro durante o envio do arquivo.')
-          }
+          // if (!data.ok) {
+          //   throw new Error('Erro durante o envio do arquivo.')
+          // }
 
 
           const contentDisposition = data.headers.get('Content-Disposition')

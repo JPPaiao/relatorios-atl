@@ -6,7 +6,7 @@ import ast
 
 # load_dotenv('../.env')
 # COLUMNS = os.getenv('COLUMNS')
-COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ORIGINAL', 'V. FINAL', 'V. DIFERENÇA',	'OBS SAC',	'SAC']
+COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', 'TRANSPORTADORA', 'CNPJ TRANSPORTADORA', 'VALORES', 'OBS', 'DATA. PAG', 'NF', 'TERMO', 'DOCUMENTACAO', 'ISENTO', 'V. ORIGINAL', 'V. FINAL', 'V. DIFERENÇA',	'OBS SAC',	'SAC', 'DATA ATUALIZACAO']
 
 service = main()
 sheet_ids = service['sheet_ids']
@@ -41,6 +41,7 @@ def create_sheet_if_not_exists(sheet_name, depot):
 
 def dates_df(df, depot):
   df = df[df['ENTRADA'].notna()]
+  df["ENTRADA"] = pd.to_datetime(df["ENTRADA"], errors='coerce')
   grouped = df.groupby([df['ENTRADA'].dt.year, df['ENTRADA'].dt.month])
   months = [] 
 

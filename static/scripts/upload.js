@@ -113,8 +113,13 @@ function upload(e) {
             body: formData
           })
 
+          const responseData = await data.json()
+          requestId = responseData.request_id // Salvar o request_id
+
+          console.log(`Upload iniciado. Request ID: ${requestId}`)
+
           const statusInterval = setInterval(async () => {
-            const progressResponse = await fetch('/progress')
+            const progressResponse = await fetch(`/progress/${requestId}`)
             .catch(e =>{
               Swal.fire({
                 title: `<p>Erro no upload - ${e}<p>`,
@@ -122,6 +127,7 @@ function upload(e) {
               })
               clearInterval(statusInterval)
             })
+            console.log(progressResponse)
             
             if (progressResponse === undefined) {
               Swal.fire({
@@ -137,7 +143,7 @@ function upload(e) {
             if (progress >= 100 || dataProgress.status === 'completed') {
 
               const link = document.createElement('a')
-              link.href = '/download_processed_file'
+              link.href = `/download_processed_file/${requestId}`
   
               progressBar.style.width = `${progress}`
               uploadPercentage.textContent = `${progress}`
@@ -178,6 +184,7 @@ function upload(e) {
                 icon: 'error'
               })
             } else {
+              console.log(progress)
               progressBar.style.width = `${progress}%`
               uploadPercentage.textContent = `${progress}%`
             }

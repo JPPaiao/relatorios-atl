@@ -63,7 +63,9 @@ def gerator_sac(df_new: pd.DataFrame, df_old: pd.DataFrame):
       date_format = ''
       date_format = pd.to_datetime(date_in, dayfirst=True).strftime("%d-%m-%Y")
       
-      isentos = df_old.loc[df_old['cntr'] == unidade, 'remarks'].values[0]
+      isentos_values  = df_old.loc[df_old['cntr'] == unidade, 'remarks'].values
+      isentos = isentos_values[0] if len(isentos_values) > 0 else ''
+
       isento_separado = isentos.split(' - ')
       array_remarks = [item for parte in isento_separado for item in parte.split('-')]
 

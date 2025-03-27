@@ -10,9 +10,9 @@ COLUMNS = ['UNIDADE', 'TIPO', 'OWNER', 'ENTRADA', 'CNPJ AGENDADO', 'CNPJ HBL', '
 
 NEW_COLUMNS = {
   'V. ORIGINAL': 15,
-  'V. DIFERENÇA': 17
+  'V. DIFERENÇA': 17,
+  'DATA ATUALIZACAO': 20
 }
-
 
 def insert_collumn(df, depot):
   verify = False
@@ -30,7 +30,10 @@ def insert_collumn(df, depot):
       'old': df,
       'new': pd.DataFrame()
     }
-    create_data(df_new_sheet, depot)
+    print('isert')
+    print(df)
+    print()
+    # create_data(df_new_sheet, depot)
 
   return df
 
