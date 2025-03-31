@@ -11,6 +11,8 @@ UPLOAD_FOLDER = os.getenv('UPLOAD')
 def get_hbl_process(file_path, depot):
   if not file_path:
     return 'Sem arquivo'
+  
+  print('hbl_error')
 
   df = pd.read_excel(file_path)
 
@@ -47,4 +49,3 @@ def get_hbl_process(file_path, depot):
       'status': 'erro',
       'mensagem': 'Unidades não encontrados'
     }
-  raise ValueError("Nenhuma planilha válida foi encontrada para processamento.")
