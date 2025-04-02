@@ -113,54 +113,45 @@ function getHbls(e) {
         link = document.createElement('a')
 
         try {
-          
-          console.log(depot)
           const data = await fetch(`/get-hbl/${depot}`, {
             method: 'POST',
             body: formData
           })
           .catch(error => {
             Swal.fire({
-            title: 'Erro ao enviar o arquivo!',
+              title: 'Erro ao enviar o arquivo!',
               icon: 'error'
             })
             console.error('Erro no upload do arquivo:', error)
           })
-          console.log(data)
 
-          // if (!data.ok) {
-          //   throw new Error('Erro durante o envio do arquivo.')
-          // }
+          const response = await data.json()
 
+          if (response['status'] === 'erro') {
+            Swal.fire({
+                title: response['mensagem'],
+                icon: 'error'
+              })
+          } else {
+            const fileResponse = await fetch(response['file_url'], { method: "GET" })
+            const blob = await fileResponse.blob()
 
-          const contentDisposition = data.headers.get('Content-Disposition')
-          let filename = 'arquivo_processado.xlsx'
-
-          if (contentDisposition && contentDisposition.includes('filename=')) {
-            const match = contentDisposition.match(/filename="(.+?)"/)
-            if (match && match[1]) {
-                filename = match[1]
-            }
+            Swal.fire({
+                title: 'Arquivo enviado com sucesso!',
+                html: 'Clique no botão abaixo para baixar o arquivo processado.',
+                icon: 'success',
+                showCloseButton: true,
+            }).then(() => {
+                // Acionar o download automaticamente após clicar em "OK"
+                const downloadUrl = window.URL.createObjectURL(blob)
+                const downloadLink = document.createElement('a')
+                downloadLink.href = downloadUrl
+                downloadLink.download = 'arquivo_processado.xlsx' // Usar o nome do arquivo do servidor
+                document.body.appendChild(downloadLink) // Necessário para Firefox
+                downloadLink.click()
+                document.body.removeChild(downloadLink)
+            })
           }
-
-          // Obter a resposta do servidor (link para download)
-          const blob = await data.blob()
-          const downloadUrl = window.URL.createObjectURL(blob)
-
-          Swal.fire({
-              title: 'Arquivo enviado com sucesso!',
-              html: 'Clique no botão abaixo para baixar o arquivo processado.',
-              icon: 'success',
-              showCloseButton: true,
-          }).then(() => {
-              // Acionar o download automaticamente após clicar em "OK"
-              const downloadLink = document.createElement('a')
-              downloadLink.href = downloadUrl
-              downloadLink.download = filename; // Usar o nome do arquivo do servidor
-              document.body.appendChild(downloadLink); // Necessário para Firefox
-              downloadLink.click();
-              document.body.removeChild(downloadLink);
-          })
         } catch (e) {
           console.error("Erro ao realizar o upload:", e)
           Swal.fire({

@@ -116,21 +116,24 @@ def get_hbl(depot):
     clean_uploads_folder(limit=10)
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
-
     get_hbl = get_hbl_process(file_path, depot)
-    print()
-    print(get_hbl)
     
     if get_hbl['status'] == 'erro':
       return get_hbl
 
-    process_file_path, new_file_name = get_hbl['data']
+    new_file_name = get_hbl['data']['file_name']
+    
+    return {
+      'status': 'completed',
+      'file_url': f'/download/{new_file_name}'
+    }
 
-    if not process_file_path or not os.path.exists(process_file_path):
-      return "Erro ao processar o arquivo.", 500
-
-    return send_file(process_file_path, as_attachment=True, download_name=new_file_name)
-
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+  file_path = os.path.join(UPLOAD_FOLDER, filename)
+  if os.path.exists(file_path):
+    return send_file(file_path, as_attachment=True, download_name=filename)
+  return jsonify({'status': 'erro', 'mensagem': 'Arquivo não encontrado'}), 404
 
 @app.route('/download_processed_file/<string:request_id>')
 def download_processed_file(request_id):
@@ -209,7 +212,6 @@ def create_sheet(depot):
     return "Tipo de arquivo inválido!", 400
   
   if file and file.filename.endswith('.xlsx'):
-    global name_sheet
     request_id = str(uuid.uuid4())
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
